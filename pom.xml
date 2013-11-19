@@ -8,10 +8,17 @@
   <description>a crawler to fetch stats from iTunes Connect and Google Play</description>
   
   <developers>
-		<developer>
-			<name>Michele Orsi</name>
-		</developer>
-	</developers>
+  	<developer>
+	<name>Michele Orsi</name>
+	</developer>
+  </developers>
+  
+  <scm>
+		<connection>scm:git:git@github.com:micheleorsi/app-stats-crawler.git</connection>
+		<developerConnection>scm:git:git@github.com:micheleorsi/app-stats-crawler.git</developerConnection>
+		<url>scm:git:git@github.com:micheleorsi/app-stats-crawler.git</url>
+		<tag>HEAD</tag>
+	</scm>
 	
 	<prerequisites>
         <maven>3.1</maven>
@@ -26,8 +33,9 @@
     </pluginRepositories>
 
     <properties>
+    	<appengine.app.name>micheletests</appengine.app.name>
         <appengine.app.version>appstats</appengine.app.version>
-        <appengine.target.version>1.8.4</appengine.target.version>
+        <appengine.target.version>1.8.6</appengine.target.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -54,13 +62,13 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.10</version>
+            <version>4.11</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-all</artifactId>
-            <version>1.9.0</version>
+            <version>1.9.5</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -81,18 +89,19 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <version>2.5.1</version>
+                <version>3.1</version>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
                     <source>1.7</source>
                     <target>1.7</target>
+                    <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
-                <version>2.3</version>
+                <version>2.4</version>
                 <configuration>
                     <archiveClasses>true</archiveClasses>
                     <webResources>
