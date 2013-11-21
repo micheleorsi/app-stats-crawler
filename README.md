@@ -1,7 +1,7 @@
 app-stats-crawler
 =================
 
-A crawler to fetch stats on iTunes Connect and Google Play and store somewhere in the cloud
+A crawler to fetch stats on iTunes Connect and Google Play and store the raw version somewhere in the cloud
 
 Installation
 ------------
@@ -23,6 +23,6 @@ Contributing
 3. Commit your changes (`git commit -am "Added Snarkdown"`)
 4. Push to the branch (`git push origin my_markup`)
 5. Open a [Pull Request][1]
-6. Enjoy a refreshing Diet Coke and wait
+6. Enjoy your favourite drink and wait
 
 [1]: https://github.com/micheleorsi/app-stats-crawler/pulls
