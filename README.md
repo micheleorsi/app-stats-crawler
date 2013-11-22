@@ -1,25 +1,27 @@
 app-stats-crawler
 =================
 
-A crawler to fetch stats from iTunes Connect and Google Play and store raw data somewhere in the cloud. 
-I know: there are already a lot of products and API in the market, BUT 
-    * you have to pay for them a lot of money for services you will never use
-    * it is not possible to access raw-data, so that no mapreduce jobs can be applied
+A crawler to fetch stats for you **iOs** and **Android** apps. It connects to **iTunes Connect** and **Google Play** fetch data and store in the raw format somewhere in the cloud. 
 
-I want to create a simple project, ready to deploy into [Google App Engine](http://cloud.google.com/products/app-engine), that stores files into [Google Cloud Storage](http://cloud.google.com/products/cloud-storage).
+I know: there are already a lot of products and API in the market, BUT 
+* you have to pay for them a lot of money for services you will never use
+* it is not possible to access raw-data, so that no mapreduce jobs can be applied
+
+I want to create a simple project, ready to deploy into **[Google App Engine]**(http://cloud.google.com/products/app-engine), that stores files into **[Google Cloud Storage]**(http://cloud.google.com/products/cloud-storage).
 
 **app-stats-crawler** is an **OPEN Open Source Project**, see the <a href="#contributing">Contributing</a> section to find out what this means.
 
 Requirements
 ------------
 
-    * [mvn](http://maven.apache.org) in order to build and deploy the project
-    * Google account in order to create a Google App Engine project
+* [mvn](http://maven.apache.org) in order to build and deploy the project
+* Google account in order to create a Google App Engine project
     
 Configuration
 -------------
-    * create a Google App Engine [project](https://cloud.google.com/console?getstarted=https://cloud.google.com/products/app-engine)
-    * create a file similar to [account.properties.sample](https://github.com/micheleorsi/app-stats-crawler/blob/master/src/main/resources/account.properties.sample) and subtitute your values 
+
+* create a Google App Engine [project](https://cloud.google.com/console?getstarted=https://cloud.google.com/products/app-engine)
+* create a file similar to [account.properties.sample](https://github.com/micheleorsi/app-stats-crawler/blob/master/src/main/resources/account.properties.sample) and subtitute your values 
     
 Deployment
 ----------
