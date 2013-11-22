@@ -1,10 +1,28 @@
 app-stats-crawler
 =================
 
-A crawler to fetch stats on iTunes Connect and Google Play and store the raw version somewhere in the cloud
+A crawler to fetch stats from iTunes Connect and Google Play and store raw data somewhere in the cloud. 
+I know: there are already a lot of products and API in the market, BUT 
+    * you have to pay for them a lot of money for services you will never use
+    * it is not possible to access raw-data, so that no mapreduce jobs can be applied
 
-Installation
+I want to create a simple project, ready to deploy into [Google App Engine](http://cloud.google.com/products/app-engine), that stores files into [Google Cloud Storage](http://cloud.google.com/products/cloud-storage).
+
+**app-stats-crawler** is an **OPEN Open Source Project**, see the <a href="#contributing">Contributing</a> section to find out what this means.
+
+Requirements
 ------------
+
+    * [mvn](http://maven.apache.org) in order to build and deploy the project
+    * Google account in order to create a Google App Engine project
+    
+Configuration
+-------------
+    * create a Google App Engine [project](https://cloud.google.com/console?getstarted=https://cloud.google.com/products/app-engine)
+    * create a file similar to [account.properties.sample](https://github.com/micheleorsi/app-stats-crawler/blob/master/src/main/resources/account.properties.sample) and subtitute your values 
+    
+Deployment
+----------
 
     mvn clean deploy
     
@@ -18,11 +36,4 @@ To run the tests:
 Contributing
 ------------
 
-1. Fork it.
-2. Create a branch (`git checkout -b my_markup`)
-3. Commit your changes (`git commit -am "Added Snarkdown"`)
-4. Push to the branch (`git push origin my_markup`)
-5. Open a [Pull Request][1]
-6. Enjoy your favourite drink and wait
-
-[1]: https://github.com/micheleorsi/app-stats-crawler/pulls
+See the [CONTRIBUTING.md](https://github.com/micheleorsi/app-stats-crawler/blob/master/CONTRIBUTING.md) file for more details.
