@@ -1,7 +1,7 @@
 /**
  * 
  */
-package it.micheleorsi.endpoints;
+package it.micheleorsi.endpoints.services;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
