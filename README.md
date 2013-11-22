@@ -4,6 +4,8 @@ app-stats-crawler
 A crawler to fetch statistics for your **iOs** and **Android** apps. 
 It connects to **iTunes Connect** and **Google Play** to fetch data, then store the raw files somewhere in the cloud. 
 
+[![Build Status](https://travis-ci.org/micheleorsi/app-stats-crawler.png?branch=master)](https://travis-ci.org/micheleorsi/app-stats-crawler)
+
 **app-stats-crawler** is an **OPEN Open Source Project**, see the <a href="#contributing">Contributing</a> section to find out what this means.
 
 The problem
@@ -28,7 +30,7 @@ Configuration
 
 * create a Google App Engine [project](https://cloud.google.com/console?getstarted=https://cloud.google.com/products/app-engine)
 * create a Google Cloud Storage [bucket](https://cloud.google.com/console?getstarted=https://cloud.google.com/products/cloud-storage)
-* create a file similar to [account.properties.sample](https://github.com/micheleorsi/app-stats-crawler/blob/master/src/main/resources/account.properties.sample) and subtitute your values 
+* create a file similar to [account.properties.sample](https://github.com/micheleorsi/app-stats-crawler/blob/master/src/main/resources/account.properties.sample) and substitute your values 
     
 Deployment
 ----------
