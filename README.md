@@ -1,13 +1,13 @@
 app-stats-crawler
 =================
 
-A crawler to fetch stats for you **iOs** and **Android** apps. It connects to **iTunes Connect** and **Google Play** fetch data and store in the raw format somewhere in the cloud. 
+A crawler to fetch stats for your **iOs** and **Android** apps. It connects to **iTunes Connect** and **Google Play** to fetch data, then store files in the raw format somewhere in the cloud. 
 
-I know: there are already a lot of products and API in the market, BUT 
-* you have to pay for them a lot of money for services you will never use
-* it is not possible to access raw-data, so that no mapreduce jobs can be applied
+I know: there are already a lot of products and API in the market, **BUT** 
+* you have to pay for them a lot of money for **services you probably don't need**
+* it is not possible to **access raw-data**
 
-I want to create a simple project, ready to deploy into **[Google App Engine]**(http://cloud.google.com/products/app-engine), that stores files into **[Google Cloud Storage]**(http://cloud.google.com/products/cloud-storage).
+I want to create a simple project, ready to deploy into **[Google App Engine](http://cloud.google.com/products/app-engine)**, that stores files into **[Google Cloud Storage](http://cloud.google.com/products/cloud-storage)**.
 
 **app-stats-crawler** is an **OPEN Open Source Project**, see the <a href="#contributing">Contributing</a> section to find out what this means.
 
