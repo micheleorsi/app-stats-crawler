@@ -138,7 +138,7 @@ public class FetchService {
 		googlePassword = properties.get("google.password").toString();
 	}
 	
-	@POST
+	@GET
 	@Path("/apple")
 //	@Produces(MediaType.TEXT_PLAIN)
 //	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)

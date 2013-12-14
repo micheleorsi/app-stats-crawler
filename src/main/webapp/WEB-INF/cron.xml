@@ -1,0 +1,7 @@
+<cronentries>
+  <cron>
+    <url>/api/stats/apple</url>
+    <description>Downlad apple stats</description>
+    <schedule>every day 01:00</schedule><!-- UTC time -->
+  </cron>
+</cronentries>
