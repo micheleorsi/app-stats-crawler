@@ -25,17 +25,21 @@ import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Properties;
 import java.util.logging.Logger;
 
+import static com.google.appengine.api.taskqueue.TaskOptions.Builder.*;
 import it.micheleorsi.model.AppInfo;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
@@ -52,6 +56,10 @@ import com.google.api.client.http.HttpRequestFactory;
 import com.google.api.client.http.HttpResponse;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.appengine.api.taskqueue.Queue;
+import com.google.appengine.api.taskqueue.QueueFactory;
+import com.google.appengine.api.taskqueue.TaskHandle;
+import com.google.appengine.api.taskqueue.TaskOptions.Method;
 import com.google.appengine.tools.cloudstorage.GcsFileOptions;
 import com.google.appengine.tools.cloudstorage.GcsFilename;
 import com.google.appengine.tools.cloudstorage.GcsOutputChannel;
@@ -99,7 +107,7 @@ public class FetchService {
      *
      * (Note: The argument was HttpsURLConnection in decompiled code)
      */
-    private void getFile(HttpURLConnection connection) throws IOException {
+    private void getFile(HttpURLConnection connection, String path) throws IOException {
         String filename = connection.getHeaderField("filename");
         log.info(filename);
 
@@ -116,7 +124,7 @@ public class FetchService {
         buffer.flush();
         
         GcsOutputChannel outputChannel =
-            	    gcsService.createOrReplace(new GcsFilename("appstats", filename), GcsFileOptions.getDefaultInstance());
+            	    gcsService.createOrReplace(new GcsFilename(path, filename), GcsFileOptions.getDefaultInstance());
         outputChannel.write(ByteBuffer.wrap(data));
         outputChannel.close();
             
@@ -139,9 +147,41 @@ public class FetchService {
 	}
 	
 	@GET
+	@Path("/appleTask")
+	public void storeAppleStatTask() throws UnsupportedEncodingException {
+		String data = "USERNAME="      + URLEncoder.encode(appleUsername, "UTF-8");
+        data = data + "&PASSWORD="     + URLEncoder.encode(applePassword, "UTF-8");
+        data = data + "&VNDNUMBER="    + URLEncoder.encode("85662503", "UTF-8");
+        data = data + "&TYPEOFREPORT=" + URLEncoder.encode("Sales", "UTF-8");
+        data = data + "&DATETYPE="     + URLEncoder.encode("Daily", "UTF-8");
+        data = data + "&REPORTTYPE="   + URLEncoder.encode("Summary", "UTF-8");
+        Calendar cal = Calendar.getInstance();
+        String year = Integer.valueOf(cal.get(Calendar.YEAR)).toString();
+        String month = Integer.valueOf(cal.get(Calendar.MONTH)+1).toString(); // the calendar.month is the index (starting from 0)
+        String day = Integer.valueOf(cal.get(Calendar.DAY_OF_MONTH)-1).toString(); // it is not available today summary
+        log.info("TS: "+year+month+day);
+        data = data + "&REPORTDATE="   + URLEncoder.encode(year+month+day, "UTF-8");
+        
+        // queue fetch file
+        Queue queue = QueueFactory.getQueue("fetch-queue");
+        TaskHandle handler = queue.add(withUrl("/api/workers/fetchApple")
+        		.param("username",URLEncoder.encode(appleUsername, "UTF-8"))
+        		.param("password",URLEncoder.encode(applePassword, "UTF-8"))
+        		.param("vndNumber",URLEncoder.encode("85662503", "UTF-8"))
+        		.param("typeOfReport",URLEncoder.encode("Sales", "UTF-8"))
+        		.param("dateType",URLEncoder.encode("Daily", "UTF-8"))
+        		.param("reportType",URLEncoder.encode("Summary", "UTF-8"))
+        		.param("reportDate",URLEncoder.encode(year+month+day, "UTF-8"))
+        		.method(Method.POST));
+        log.info("ETA "+handler.getEtaMillis());
+        log.info("Name "+handler.getName());
+        log.info("Queue name "+handler.getQueueName());
+        log.info("Tag "+handler.getTag());
+        log.info("RetryCount "+handler.getRetryCount());
+	}
+	
+	@GET
 	@Path("/apple")
-//	@Produces(MediaType.TEXT_PLAIN)
-//	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	public void storeAppleStat() throws UnsupportedEncodingException {
 		String data = "USERNAME="      + URLEncoder.encode(appleUsername, "UTF-8");
         data = data + "&PASSWORD="     + URLEncoder.encode(applePassword, "UTF-8");
@@ -149,7 +189,12 @@ public class FetchService {
         data = data + "&TYPEOFREPORT=" + URLEncoder.encode("Sales", "UTF-8");
         data = data + "&DATETYPE="     + URLEncoder.encode("Daily", "UTF-8");
         data = data + "&REPORTTYPE="   + URLEncoder.encode("Summary", "UTF-8");
-        data = data + "&REPORTDATE="   + URLEncoder.encode("20131204", "UTF-8");
+        Calendar cal = Calendar.getInstance();
+        String year = Integer.valueOf(cal.get(Calendar.YEAR)).toString();
+        String month = Integer.valueOf(cal.get(Calendar.MONTH)+1).toString(); // the calendar.month is the index (starting from 0)
+        String day = Integer.valueOf(cal.get(Calendar.DAY_OF_MONTH)).toString();
+        log.info("TS: "+year+month+day);
+        data = data + "&REPORTDATE="   + URLEncoder.encode(year+month+day, "UTF-8");
         
         HttpURLConnection connection = null;
         try {
@@ -166,10 +211,10 @@ public class FetchService {
                   out.close();
 
                   if (connection.getHeaderField("ERRORMSG") != null) {
-                log.info(connection.getHeaderField("ERRORMSG"));
+                	  log.warning(connection.getHeaderField("ERRORMSG"));
                   } else if (connection.getHeaderField("filename") != null) {
-                getFile(connection);
-            }
+                	  getFile(connection,"appstats/apple");
+                  }
             } catch (Exception ex) {
                   ex.printStackTrace();
             log.info("The report you requested is not available at this time.  Please try again in a few minutes.");

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<queue-entries>
+  <!-- queue for fetch file -->
+  <queue>		
+    <name>fetch-queue</name>
+    <rate>10/s</rate>
+	<retry-parameters> <!-- the interval increases to 'max-doublings' times the 'min-backoff-seconds' and retries indefinitely at 'max-backoff-seconds' -->
+      <min-backoff-seconds>10</min-backoff-seconds>
+      <max-backoff-seconds>600</max-backoff-seconds>
+      <max-doublings>4</max-doublings>
+      <task-age-limit>12h</task-age-limit>
+    </retry-parameters>
+    <max-concurrent-requests>5</max-concurrent-requests>
+  </queue>
+  <!-- queue for store files -->
+  <queue>		
+    <name>store-queue</name>
+    <rate>10/s</rate>
+	<retry-parameters>
+      <min-backoff-seconds>10</min-backoff-seconds>
+      <max-backoff-seconds>600</max-backoff-seconds>
+      <max-doublings>4</max-doublings>
+    </retry-parameters>
+    <max-concurrent-requests>5</max-concurrent-requests>
+  </queue>
+  <!-- queue for unzip files -->
+  <queue>		
+    <name>unzip-queue</name>
+    <rate>10/s</rate>
+	<retry-parameters>
+      <min-backoff-seconds>10</min-backoff-seconds>
+      <max-backoff-seconds>600</max-backoff-seconds>
+      <max-doublings>4</max-doublings>
+    </retry-parameters>
+    <max-concurrent-requests>5</max-concurrent-requests>
+  </queue>
+</queue-entries>
