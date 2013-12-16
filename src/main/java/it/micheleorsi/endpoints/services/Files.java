@@ -78,7 +78,8 @@ public class Files {
 	    InputStream ungzippedResponse = new GZIPInputStream(gzippedResponse);
 	    
 	    GcsOutputChannel outputChannel =
-        	    gcsService.createOrReplace(new GcsFilename("appstats", statType+"/"+path.replace(".gz", "")), GcsFileOptions.getDefaultInstance());
+        	    gcsService.createOrReplace(new GcsFilename("appstats", statType+"/"+path.replace(".gz", "")), 
+        	    		new GcsFileOptions.Builder().mimeType("text/tab-separated-values").build());
 	    
 	    IOUtils.copy(ungzippedResponse, Channels.newOutputStream(outputChannel));
 		
