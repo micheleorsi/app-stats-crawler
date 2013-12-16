@@ -6,14 +6,17 @@ package it.micheleorsi.endpoints.services;
 import static com.google.appengine.api.taskqueue.TaskOptions.Builder.withUrl;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
 import java.util.logging.Logger;
+import java.util.zip.GZIPInputStream;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -28,6 +31,7 @@ import com.google.appengine.api.taskqueue.TaskHandle;
 import com.google.appengine.api.taskqueue.TaskOptions.Method;
 import com.google.appengine.tools.cloudstorage.GcsFileOptions;
 import com.google.appengine.tools.cloudstorage.GcsFilename;
+import com.google.appengine.tools.cloudstorage.GcsInputChannel;
 import com.google.appengine.tools.cloudstorage.GcsOutputChannel;
 import com.google.appengine.tools.cloudstorage.GcsService;
 import com.google.appengine.tools.cloudstorage.GcsServiceFactory;
@@ -53,6 +57,7 @@ public class Workers {
 			@FormParam("dateType") String dateType,
 			@FormParam("reportType") String reportType,
 			@FormParam("reportDate") String reportDate) throws IOException {
+		log.info("fetch apple file");
 		String data = "USERNAME="      + username;
         data = data + "&PASSWORD="     + password;
         data = data + "&VNDNUMBER="    + vndNumber;
@@ -82,7 +87,7 @@ public class Workers {
         	
         	// queue store file
         	Queue queue = QueueFactory.getQueue("store-queue");
-            TaskHandle handler = queue.add(withUrl("/api/workers/store/"+connection.getHeaderField("filename"))
+            TaskHandle handler = queue.add(withUrl("/api/files/apple/"+connection.getHeaderField("filename"))
             		.payload(bytes)
             		.method(Method.POST));
             log.info("ETA "+handler.getEtaMillis());
@@ -94,34 +99,5 @@ public class Workers {
         if (connection != null) {
         	connection.disconnect();
         }
-	}
-	
-	@POST
-	@Path("/store/{path}")
-	public void storeFile(@PathParam("path") String path,
-			byte[] payload) throws IOException {
-		GcsService gcsService =
-			    GcsServiceFactory.createGcsService(RetryParams.getDefaultInstance());
-		GcsOutputChannel outputChannel =
-        	    gcsService.createOrReplace(new GcsFilename("appstats", path), GcsFileOptions.getDefaultInstance());
-		outputChannel.write(ByteBuffer.wrap(payload));
-		outputChannel.close();
-		
-		// queue unzip file
-    	Queue queue = QueueFactory.getQueue("store-queue");
-        TaskHandle handler = queue.add(withUrl("/api/workers/unzip/"+path)
-//        		.payload(bytes)
-        		.method(Method.POST));
-        log.info("ETA "+handler.getEtaMillis());
-        log.info("Name "+handler.getName());
-        log.info("Queue name "+handler.getQueueName());
-        log.info("Tag "+handler.getTag());
-        log.info("RetryCount "+handler.getRetryCount());
-	}
-	
-	@POST
-	@Path("/unzip/{path}")
-	public void unzipFile(@PathParam("path") String path) throws IOException {
-		log.info("unzip this file"+path);
 	}
 }

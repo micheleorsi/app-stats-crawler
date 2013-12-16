@@ -147,83 +147,33 @@ public class FetchService {
 	}
 	
 	@GET
-	@Path("/appleTask")
+	@Path("/apple")
 	public void storeAppleStatTask() throws UnsupportedEncodingException {
-		String data = "USERNAME="      + URLEncoder.encode(appleUsername, "UTF-8");
-        data = data + "&PASSWORD="     + URLEncoder.encode(applePassword, "UTF-8");
-        data = data + "&VNDNUMBER="    + URLEncoder.encode("85662503", "UTF-8");
-        data = data + "&TYPEOFREPORT=" + URLEncoder.encode("Sales", "UTF-8");
-        data = data + "&DATETYPE="     + URLEncoder.encode("Daily", "UTF-8");
-        data = data + "&REPORTTYPE="   + URLEncoder.encode("Summary", "UTF-8");
         Calendar cal = Calendar.getInstance();
         String year = Integer.valueOf(cal.get(Calendar.YEAR)).toString();
         String month = Integer.valueOf(cal.get(Calendar.MONTH)+1).toString(); // the calendar.month is the index (starting from 0)
         String day = Integer.valueOf(cal.get(Calendar.DAY_OF_MONTH)-1).toString(); // it is not available today summary
-        log.info("TS: "+year+month+day);
-        data = data + "&REPORTDATE="   + URLEncoder.encode(year+month+day, "UTF-8");
-        
+        log.info("TS: "+year+month+day);        
         // queue fetch file
-        Queue queue = QueueFactory.getQueue("fetch-queue");
+        this.addDownloadFile(year+month+day);
+	}
+	
+	private void addDownloadFile(String reportDate) throws UnsupportedEncodingException {
+		Queue queue = QueueFactory.getQueue("fetch-queue");
         TaskHandle handler = queue.add(withUrl("/api/workers/fetchApple")
-        		.param("username",URLEncoder.encode(appleUsername, "UTF-8"))
-        		.param("password",URLEncoder.encode(applePassword, "UTF-8"))
-        		.param("vndNumber",URLEncoder.encode("85662503", "UTF-8"))
-        		.param("typeOfReport",URLEncoder.encode("Sales", "UTF-8"))
-        		.param("dateType",URLEncoder.encode("Daily", "UTF-8"))
-        		.param("reportType",URLEncoder.encode("Summary", "UTF-8"))
-        		.param("reportDate",URLEncoder.encode(year+month+day, "UTF-8"))
+        		.param("username",appleUsername)
+        		.param("password",applePassword)
+        		.param("vndNumber","85662503")
+        		.param("typeOfReport","Sales")
+        		.param("dateType","Daily")
+        		.param("reportType","Summary")
+        		.param("reportDate",reportDate)
         		.method(Method.POST));
         log.info("ETA "+handler.getEtaMillis());
         log.info("Name "+handler.getName());
         log.info("Queue name "+handler.getQueueName());
         log.info("Tag "+handler.getTag());
         log.info("RetryCount "+handler.getRetryCount());
-	}
-	
-	@GET
-	@Path("/apple")
-	public void storeAppleStat() throws UnsupportedEncodingException {
-		String data = "USERNAME="      + URLEncoder.encode(appleUsername, "UTF-8");
-        data = data + "&PASSWORD="     + URLEncoder.encode(applePassword, "UTF-8");
-        data = data + "&VNDNUMBER="    + URLEncoder.encode("85662503", "UTF-8");
-        data = data + "&TYPEOFREPORT=" + URLEncoder.encode("Sales", "UTF-8");
-        data = data + "&DATETYPE="     + URLEncoder.encode("Daily", "UTF-8");
-        data = data + "&REPORTTYPE="   + URLEncoder.encode("Summary", "UTF-8");
-        Calendar cal = Calendar.getInstance();
-        String year = Integer.valueOf(cal.get(Calendar.YEAR)).toString();
-        String month = Integer.valueOf(cal.get(Calendar.MONTH)+1).toString(); // the calendar.month is the index (starting from 0)
-        String day = Integer.valueOf(cal.get(Calendar.DAY_OF_MONTH)).toString();
-        log.info("TS: "+year+month+day);
-        data = data + "&REPORTDATE="   + URLEncoder.encode(year+month+day, "UTF-8");
-        
-        HttpURLConnection connection = null;
-        try {
-            URL url = new URL("https://reportingitc.apple.com/autoingestion.tft?");
-
-            connection = (HttpURLConnection)url.openConnection();
-                  connection.setRequestMethod("POST");
-                  connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-                  connection.setDoOutput(true);
-                      
-                  OutputStreamWriter out = new OutputStreamWriter(connection.getOutputStream());
-                  out.write(data);
-                  out.flush();
-                  out.close();
-
-                  if (connection.getHeaderField("ERRORMSG") != null) {
-                	  log.warning(connection.getHeaderField("ERRORMSG"));
-                  } else if (connection.getHeaderField("filename") != null) {
-                	  getFile(connection,"appstats/apple");
-                  }
-            } catch (Exception ex) {
-                  ex.printStackTrace();
-            log.info("The report you requested is not available at this time.  Please try again in a few minutes.");
-        } finally {
-                  if (connection != null) {
-                connection.disconnect();
-                connection = null;
-                  }
-        }
 	}
 	
 	private void sendPost(String url, String postParams) throws Exception {

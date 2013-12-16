@@ -4,6 +4,7 @@
 package it.micheleorsi.endpoints;
 
 import it.micheleorsi.endpoints.services.FetchService;
+import it.micheleorsi.endpoints.services.Files;
 import it.micheleorsi.endpoints.services.Workers;
 
 import java.util.HashSet;
@@ -22,6 +23,7 @@ public class RestApplication extends Application {
         // my endpoints
         s.add(FetchService.class);
         s.add(Workers.class);
+        s.add(Files.class);
         
         s.add(com.sun.jersey.server.impl.model.method.dispatch.VoidVoidDispatchProvider.class);
         s.add(com.sun.jersey.server.impl.model.method.dispatch.HttpReqResDispatchProvider.class);
