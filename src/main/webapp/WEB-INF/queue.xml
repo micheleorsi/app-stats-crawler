@@ -10,7 +10,7 @@
       <max-doublings>4</max-doublings>
       <task-age-limit>12h</task-age-limit>
     </retry-parameters>
-    <max-concurrent-requests>5</max-concurrent-requests>
+    <max-concurrent-requests>3</max-concurrent-requests>
   </queue>
   <!-- queue for store files -->
   <queue>		
@@ -21,7 +21,7 @@
       <max-backoff-seconds>600</max-backoff-seconds>
       <max-doublings>4</max-doublings>
     </retry-parameters>
-    <max-concurrent-requests>5</max-concurrent-requests>
+    <max-concurrent-requests>3</max-concurrent-requests>
   </queue>
   <!-- queue for unzip files -->
   <queue>		
@@ -32,6 +32,17 @@
       <max-backoff-seconds>600</max-backoff-seconds>
       <max-doublings>4</max-doublings>
     </retry-parameters>
-    <max-concurrent-requests>5</max-concurrent-requests>
+    <max-concurrent-requests>3</max-concurrent-requests>
+  </queue>
+  <!-- queue for delete files -->
+  <queue>		
+    <name>delete-queue</name>
+    <rate>10/s</rate>
+	<retry-parameters>
+      <min-backoff-seconds>10</min-backoff-seconds>
+      <max-backoff-seconds>600</max-backoff-seconds>
+      <max-doublings>4</max-doublings>
+    </retry-parameters>
+    <max-concurrent-requests>3</max-concurrent-requests>
   </queue>
 </queue-entries>
