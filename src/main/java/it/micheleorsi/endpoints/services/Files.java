@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
+import java.util.Date;
 import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
 
@@ -53,15 +54,18 @@ public class Files {
 		outputChannel.write(ByteBuffer.wrap(payload));
 		outputChannel.close();
 		
-		// queue unzip file
-    	Queue queue = QueueFactory.getQueue("unzip-queue");
-        TaskHandle handler = queue.add(withUrl("/api/files/"+statType+"/"+path)
-        		.method(Method.PUT));
-        log.info("ETA "+handler.getEtaMillis());
-        log.info("Name "+handler.getName());
-        log.info("Queue name "+handler.getQueueName());
-        log.info("Tag "+handler.getTag());
-        log.info("RetryCount "+handler.getRetryCount());
+		if(path.endsWith(".gz")) {
+			log.info("going to unzip file");
+			// queue unzip file
+	    	Queue queue = QueueFactory.getQueue("unzip-queue");
+	        TaskHandle handler = queue.add(withUrl("/api/files/"+statType+"/"+path)
+	        		.method(Method.PUT));
+	        log.info("ETA "+ new Date(handler.getEtaMillis()));
+	        log.info("Name "+handler.getName());
+	        log.info("Queue name "+handler.getQueueName());
+	        log.info("Tag "+handler.getTag());
+	        log.info("RetryCount "+handler.getRetryCount());
+		}		
 	}
 	
 	@PUT
@@ -87,10 +91,10 @@ public class Files {
 	    outputChannel.close();
 	    
 	    // queue delete file
-    	Queue queue = QueueFactory.getQueue("unzip-queue");
+    	Queue queue = QueueFactory.getQueue("delete-queue");
         TaskHandle handler = queue.add(withUrl("/api/files/"+statType+"/"+path)
         		.method(Method.DELETE));
-        log.info("ETA "+handler.getEtaMillis());
+        log.info("ETA "+ new Date(handler.getEtaMillis()));
         log.info("Name "+handler.getName());
         log.info("Queue name "+handler.getQueueName());
         log.info("Tag "+handler.getTag());
