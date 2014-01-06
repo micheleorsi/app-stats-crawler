@@ -3,29 +3,18 @@
  */
 package it.micheleorsi.endpoints.services;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.ObjectOutputStream;
-import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.CookieHandler;
 import java.net.CookieManager;
-import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.nio.ByteBuffer;
-import java.nio.channels.Channels;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.logging.Logger;
@@ -35,13 +24,10 @@ import it.micheleorsi.model.AppInfo;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 
 import org.jsoup.Jsoup;
@@ -49,25 +35,16 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import com.google.api.client.googleapis.extensions.appengine.auth.oauth2.AppIdentityCredential;
-import com.google.api.client.http.GenericUrl;
-import com.google.api.client.http.HttpRequest;
-import com.google.api.client.http.HttpRequestFactory;
-import com.google.api.client.http.HttpResponse;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.appengine.api.taskqueue.Queue;
 import com.google.appengine.api.taskqueue.QueueFactory;
 import com.google.appengine.api.taskqueue.TaskHandle;
 import com.google.appengine.api.taskqueue.TaskOptions.Method;
-import com.google.appengine.tools.cloudstorage.GcsFileOptions;
-import com.google.appengine.tools.cloudstorage.GcsFilename;
 import com.google.appengine.tools.cloudstorage.GcsOutputChannel;
 import com.google.appengine.tools.cloudstorage.GcsService;
 import com.google.appengine.tools.cloudstorage.GcsServiceFactory;
 import com.google.appengine.tools.cloudstorage.RetryParams;
-
-
 
 /**
  * @author micheleorsi
@@ -93,49 +70,15 @@ public class FetchService {
 	String applePassword;
 	String googleUsername;
 	String googlePassword;
+	String mopappUsername;
+	String mopappPassword;
+	
+	String[] mopappApps;
 	
 	List<String> cookies;
 	HttpsURLConnection conn;
 	 
 	final String USER_AGENT = "Mozilla/5.0";
-	
-	/**
-     * Download a file from a HTTP connection and write it to file indicated by
-     * HTTP header 'filename'
-     *
-     * @param connection HTTP connection to read downloading file from
-     *
-     * (Note: The argument was HttpsURLConnection in decompiled code)
-     */
-    private void getFile(HttpURLConnection connection, String path) throws IOException {
-        String filename = connection.getHeaderField("filename");
-        log.info(filename);
-
-        InputStream is = connection.getInputStream();
-        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-
-        int nRead;
-        byte[] data = new byte[16384];
-
-        while ((nRead = is.read(data, 0, data.length)) != -1) {
-          buffer.write(data, 0, nRead);
-        }
-        is.close();
-        buffer.flush();
-        
-        GcsOutputChannel outputChannel =
-            	    gcsService.createOrReplace(new GcsFilename(path, filename), GcsFileOptions.getDefaultInstance());
-        outputChannel.write(ByteBuffer.wrap(data));
-        outputChannel.close();
-            
-//        ObjectOutputStream oout = new ObjectOutputStream(Channels.newOutputStream(outputChannel));
-//        oout.writeObject(content);
-//        oout.close();
-
-        
-//        out.close(); //TODO
-        log.info("File Downloaded Successfully ");
-    }
 	
 	public FetchService() throws IOException {
 		Properties properties = new Properties();
@@ -148,17 +91,20 @@ public class FetchService {
 	
 	@GET
 	@Path("/apple")
-	public void storeAppleStatTask() throws UnsupportedEncodingException {
+	public String storeAppleStatTask() throws UnsupportedEncodingException {
         Calendar cal = Calendar.getInstance();
-        String year = Integer.valueOf(cal.get(Calendar.YEAR)).toString();
-        String month = Integer.valueOf(cal.get(Calendar.MONTH)+1).toString(); // the calendar.month is the index (starting from 0)
-        String day = Integer.valueOf(cal.get(Calendar.DAY_OF_MONTH)-1).toString(); // it is not available today summary
+        // download the previous day stats because it is not available today summary
+        cal.add(Calendar.DAY_OF_MONTH, -1);
+		String year = Integer.valueOf(cal.get(Calendar.YEAR)).toString();
+        String month = String.format("%02d", (cal.get(Calendar.MONTH)+1)); // the calendar.month is the index (starting from 0)
+        String day = String.format("%02d", (cal.get(Calendar.DAY_OF_MONTH)));
         log.info("TS: "+year+month+day);        
         // queue fetch file
-        this.addDownloadFile(year+month+day);
+        this.addDownloadAppleFile(year+month+day);
+        return "added to the queue";
 	}
 	
-	private void addDownloadFile(String reportDate) throws UnsupportedEncodingException {
+	private void addDownloadAppleFile(String reportDate) throws UnsupportedEncodingException {
 		Queue queue = QueueFactory.getQueue("fetch-queue");
         TaskHandle handler = queue.add(withUrl("/api/workers/fetchApple")
         		.param("username",appleUsername)
@@ -169,7 +115,7 @@ public class FetchService {
         		.param("reportType","Summary")
         		.param("reportDate",reportDate)
         		.method(Method.POST));
-        log.info("ETA "+handler.getEtaMillis());
+        log.info("ETA "+ new Date(handler.getEtaMillis()));
         log.info("Name "+handler.getName());
         log.info("Queue name "+handler.getQueueName());
         log.info("Tag "+handler.getTag());
@@ -269,7 +215,7 @@ public class FetchService {
 	 
 	  }
 	 
-	  private String getFormParams(String html, String username, String password)
+	private String getFormParams(String html, String username, String password)
 			throws UnsupportedEncodingException {
 	 
 		log.info("Extracting form's data...");
@@ -301,34 +247,6 @@ public class FetchService {
 			}
 		}
 		return result.toString();
-	  }
-	
-	@GET
-	public void testMethod() {
-		try {
-		      AppIdentityCredential credential = new AppIdentityCredential(Arrays.asList(STORAGE_SCOPE));
-
-		      // Set up and execute Google Cloud Storage request.
-		      String bucketName = "appstats";
-		      
-		      // Remove any trailing slashes, if found.
-		      String URI = GCS_URI + bucketName;
-		      HttpRequestFactory requestFactory = HTTP_TRANSPORT.createRequestFactory(credential);
-		      GenericUrl url = new GenericUrl(URI);
-		      HttpRequest request = requestFactory.buildGetRequest(url);
-		      HttpResponse response = request.execute();
-		      String content = response.parseAsString();
-
-		      // Display the output XML.
-//		      resp.setContentType("text/xml");
-//		      BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(resp.getOutputStream()));
-//		      String formattedContent = content.replaceAll("(<ListBucketResult)", XSL + "$1");
-//		      writer.append(formattedContent);
-//		      writer.flush();
-//		      resp.setStatus(200);
-		    } catch (Throwable e) {
-//		      resp.sendError(404, e.getMessage());
-		    }
 	}
 	  
 	@POST

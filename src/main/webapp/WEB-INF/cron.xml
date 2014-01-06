@@ -2,6 +2,6 @@
   <cron>
     <url>/api/stats/apple</url>
     <description>Downlad apple stats</description>
-    <schedule>every day 11:00</schedule><!-- UTC time -->
+    <schedule>every day 12:00</schedule><!-- UTC time -->
   </cron>
 </cronentries>
