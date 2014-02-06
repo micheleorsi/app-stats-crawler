@@ -94,7 +94,7 @@ public class Workers {
         	byte[] bytes = IOUtils.toByteArray(connection.getInputStream());
         	
         	// queue store file
-        	Queue queue = QueueFactory.getQueue("store-queue");
+        	Queue queue = QueueFactory.getQueue("store");
             TaskHandle handler = queue.add(withUrl("/api/files/apple/"+connection.getHeaderField("filename"))
             		.payload(bytes)
             		.method(Method.POST));

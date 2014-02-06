@@ -105,7 +105,7 @@ public class FetchService {
 	}
 	
 	private void addDownloadAppleFile(String reportDate) throws UnsupportedEncodingException {
-		Queue queue = QueueFactory.getQueue("fetch-queue");
+		Queue queue = QueueFactory.getQueue("fetch");
         TaskHandle handler = queue.add(withUrl("/api/workers/fetchApple")
         		.param("username",appleUsername)
         		.param("password",applePassword)

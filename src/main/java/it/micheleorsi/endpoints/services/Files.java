@@ -57,7 +57,7 @@ public class Files {
 		if(path.endsWith(".gz")) {
 			log.info("going to unzip file");
 			// queue unzip file
-	    	Queue queue = QueueFactory.getQueue("unzip-queue");
+	    	Queue queue = QueueFactory.getQueue("unzip");
 	        TaskHandle handler = queue.add(withUrl("/api/files/"+statType+"/"+path)
 	        		.method(Method.PUT));
 	        log.info("ETA "+ new Date(handler.getEtaMillis()));
@@ -91,7 +91,7 @@ public class Files {
 	    outputChannel.close();
 	    
 	    // queue delete file
-    	Queue queue = QueueFactory.getQueue("delete-queue");
+    	Queue queue = QueueFactory.getQueue("delete");
         TaskHandle handler = queue.add(withUrl("/api/files/"+statType+"/"+path)
         		.method(Method.DELETE));
         log.info("ETA "+ new Date(handler.getEtaMillis()));

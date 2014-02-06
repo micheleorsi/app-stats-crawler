@@ -2,7 +2,7 @@
 <queue-entries>
   <!-- queue for fetch file -->
   <queue>		
-    <name>fetch-queue</name>
+    <name>fetch</name>
     <rate>10/s</rate>
 	<retry-parameters> <!-- the interval increases to 'max-doublings' times the 'min-backoff-seconds' and retries indefinitely at 'max-backoff-seconds' -->
       <min-backoff-seconds>10</min-backoff-seconds>
@@ -14,7 +14,7 @@
   </queue>
   <!-- queue for store files -->
   <queue>		
-    <name>store-queue</name>
+    <name>store</name>
     <rate>10/s</rate>
 	<retry-parameters>
       <min-backoff-seconds>10</min-backoff-seconds>
@@ -25,7 +25,7 @@
   </queue>
   <!-- queue for unzip files -->
   <queue>		
-    <name>unzip-queue</name>
+    <name>unzip</name>
     <rate>10/s</rate>
 	<retry-parameters>
       <min-backoff-seconds>10</min-backoff-seconds>
@@ -36,7 +36,7 @@
   </queue>
   <!-- queue for delete files -->
   <queue>		
-    <name>delete-queue</name>
+    <name>delete</name>
     <rate>10/s</rate>
 	<retry-parameters>
       <min-backoff-seconds>10</min-backoff-seconds>
