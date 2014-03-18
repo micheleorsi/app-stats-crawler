@@ -5,7 +5,7 @@
     <name>fetch</name>
     <rate>10/s</rate>
 	<retry-parameters> <!-- the interval increases to 'max-doublings' times the 'min-backoff-seconds' and retries indefinitely at 'max-backoff-seconds' -->
-      <min-backoff-seconds>10</min-backoff-seconds>
+      <min-backoff-seconds>60</min-backoff-seconds>
       <max-backoff-seconds>600</max-backoff-seconds>
       <max-doublings>4</max-doublings>
       <task-age-limit>12h</task-age-limit>
@@ -17,7 +17,7 @@
     <name>store</name>
     <rate>10/s</rate>
 	<retry-parameters>
-      <min-backoff-seconds>10</min-backoff-seconds>
+      <min-backoff-seconds>60</min-backoff-seconds>
       <max-backoff-seconds>600</max-backoff-seconds>
       <max-doublings>4</max-doublings>
     </retry-parameters>
@@ -28,7 +28,7 @@
     <name>unzip</name>
     <rate>10/s</rate>
 	<retry-parameters>
-      <min-backoff-seconds>10</min-backoff-seconds>
+      <min-backoff-seconds>60</min-backoff-seconds>
       <max-backoff-seconds>600</max-backoff-seconds>
       <max-doublings>4</max-doublings>
     </retry-parameters>
@@ -39,7 +39,7 @@
     <name>delete</name>
     <rate>10/s</rate>
 	<retry-parameters>
-      <min-backoff-seconds>10</min-backoff-seconds>
+      <min-backoff-seconds>60</min-backoff-seconds>
       <max-backoff-seconds>600</max-backoff-seconds>
       <max-doublings>4</max-doublings>
     </retry-parameters>

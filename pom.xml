@@ -35,7 +35,7 @@
     <properties>
     	<appengine.app.name>micheletests</appengine.app.name>
         <appengine.app.version>appstats</appengine.app.version>
-        <appengine.target.version>1.8.9</appengine.target.version>
+        <appengine.target.version>1.9.0</appengine.target.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <google-api-client.version>1.17.0-rc</google-api-client.version>
     </properties>
