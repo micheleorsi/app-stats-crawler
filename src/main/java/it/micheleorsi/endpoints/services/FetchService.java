@@ -5,7 +5,6 @@ package it.micheleorsi.endpoints.services;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.CookieHandler;
@@ -16,11 +15,12 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 import java.util.logging.Logger;
 
 import static com.google.appengine.api.taskqueue.TaskOptions.Builder.*;
 import it.micheleorsi.model.AppInfo;
+import it.micheleorsi.model.StoreAuth;
+import it.micheleorsi.utils.Configurator;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.ws.rs.Consumes;
@@ -30,6 +30,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import org.apache.commons.configuration.ConfigurationException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -52,6 +53,13 @@ import com.google.appengine.tools.cloudstorage.RetryParams;
  */
 @Path("/stats")
 public class FetchService {
+	private static final String APPLE_ID = "apple.id";
+	private static final String APPLE_USERNAME = "apple.username";
+	private static final String APPLE_PASSWORD = "apple.password";
+	
+	private static final String GOOGLE_USERNAME = "google.username";
+	private static final String GOOGLE_PASSWORD = "google.password";
+	
 	private static final String GCS_URI = "http://commondatastorage.googleapis.com";
 
 	/** Global configuration of Google Cloud Storage OAuth 2.0 scope. */
@@ -60,66 +68,63 @@ public class FetchService {
 	/** Global instance of the HTTP transport. */
 	private static final HttpTransport HTTP_TRANSPORT = new NetHttpTransport();
 	
+	private List<StoreAuth> appleAuths = null;
+	private List<StoreAuth> googleAuths = null;
+	
 
 	private final GcsService gcsService =
 		    GcsServiceFactory.createGcsService(RetryParams.getDefaultInstance());
 	GcsOutputChannel outputChannel = null;
 	  
 	Logger log = Logger.getLogger(FetchService.class.getName());
-	String appleUsername;
-	String applePassword;
-	String googleUsername;
-	String googlePassword;
-	String mopappUsername;
-	String mopappPassword;
-	
-	String[] mopappApps;
 	
 	List<String> cookies;
 	HttpsURLConnection conn;
 	 
 	final String USER_AGENT = "Mozilla/5.0";
 	
-	public FetchService() throws IOException {
-		Properties properties = new Properties();
-		properties.load(getClass().getClassLoader().getResourceAsStream("account.properties"));
-		appleUsername = properties.get("apple.username").toString();
-		applePassword = properties.get("apple.password").toString();
-		googleUsername = properties.get("google.username").toString();
-		googlePassword = properties.get("google.password").toString();
+	public FetchService() throws ConfigurationException {
+		Configurator config = new Configurator("account.properties");
+		this.appleAuths = config.getAppleAuths();
+		this.googleAuths = config.getGoogleAuths();
 	}
-	
+	/**
+	 * Here is the endpoint invoked by cron
+	 */
 	@GET
 	@Path("/apple")
 	public String storeAppleStatTask() throws UnsupportedEncodingException {
-        Calendar cal = Calendar.getInstance();
-        // download the previous day stats because it is not available today summary
-        cal.add(Calendar.DAY_OF_MONTH, -1);
-		String year = Integer.valueOf(cal.get(Calendar.YEAR)).toString();
-        String month = String.format("%02d", (cal.get(Calendar.MONTH)+1)); // the calendar.month is the index (starting from 0)
-        String day = String.format("%02d", (cal.get(Calendar.DAY_OF_MONTH)));
-        log.info("TS: "+year+month+day);        
-        // queue fetch file
-        this.addDownloadAppleFile(year+month+day);
+//        for(int i=-30; i<0; i++) {
+//        	log.info("adding "+i+" day");
+        	// download the previous day stats because it is not available today summary
+        	Calendar cal = Calendar.getInstance();
+        	cal.add(Calendar.DAY_OF_MONTH, -1); //change with i in case of a cycle
+    		String year = Integer.valueOf(cal.get(Calendar.YEAR)).toString();
+            String month = String.format("%02d", (cal.get(Calendar.MONTH)+1)); // the calendar.month is the index (starting from 0)
+            String day = String.format("%02d", (cal.get(Calendar.DAY_OF_MONTH)));
+            log.info("TS: "+year+month+day);        
+            // queue fetch file
+            this.addDownloadAppleFile(year+month+day);
+//        }
         return "added to the queue";
 	}
 	
 	private void addDownloadAppleFile(String reportDate) throws UnsupportedEncodingException {
 		Queue queue = QueueFactory.getQueue("fetch");
-        TaskHandle handler = queue.add(withUrl("/api/workers/fetchApple")
-        		.param("username",appleUsername)
-        		.param("password",applePassword)
-        		.param("vndNumber","85662503")
-        		.param("typeOfReport","Sales")
-        		.param("dateType","Daily")
-        		.param("reportType","Summary")
-        		.param("reportDate",reportDate)
-        		.method(Method.POST));
-        log.info("ETA "+ new Date(handler.getEtaMillis()));
-        log.info("Name "+handler.getName());
-        log.info("Queue name "+handler.getQueueName());
-        log.info("Tag "+handler.getTag());
-        log.info("RetryCount "+handler.getRetryCount());
+		for (StoreAuth localAuth : this.appleAuths) {
+			TaskHandle handler = queue.add(withUrl("/api/workers/fetchApple")
+					.param("username", localAuth.getUsername())
+					.param("password", localAuth.getPassword())
+					.param("vndNumber", localAuth.getId())
+					.param("typeOfReport", "Sales").param("dateType", "Daily")
+					.param("reportType", "Summary")
+					.param("reportDate", reportDate).method(Method.POST));
+			log.info("ETA " + new Date(handler.getEtaMillis()));
+			log.info("Name " + handler.getName());
+			log.info("Queue name " + handler.getQueueName());
+			log.info("Tag " + handler.getTag());
+			log.info("RetryCount " + handler.getRetryCount());
+		}
 	}
 	
 	private void sendPost(String url, String postParams) throws Exception {
@@ -263,7 +268,7 @@ public class FetchService {
 	 
 		// 1. Send a "GET" request, so that you can extract the form's data.
 		String page = this.getPageContent(url);
-		String postParams = this.getFormParams(page, googleUsername, googlePassword);
+		String postParams = this.getFormParams(page, this.googleAuths.get(0).getUsername(), this.googleAuths.get(0).getPassword());
 	 
 		// 2. Construct above post's content and then send a POST request for
 		// authentication

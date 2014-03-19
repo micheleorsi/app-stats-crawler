@@ -42,15 +42,20 @@ public class Files {
 	Logger log = Logger.getLogger(Files.class.getName());
 	
 	@POST
-	@Path("/{statType}/{path}")
+	@Path("/{statType}/{accountId}/{path}")
 	public void storeFile(@PathParam("statType") String statType,
+			@PathParam("accountId") String accountId,
 			@PathParam("path") String path,
 			byte[] payload) throws IOException {
-		log.info("store "+statType+" file");
+		log.info("store "+statType+" type");
+		log.info("from "+accountId+" id");
+		log.info("into "+path+" path");
 		GcsService gcsService =
 			    GcsServiceFactory.createGcsService(RetryParams.getDefaultInstance());
 		GcsOutputChannel outputChannel =
-        	    gcsService.createOrReplace(new GcsFilename("appstats", statType+"/"+path), GcsFileOptions.getDefaultInstance());
+        	    gcsService.createOrReplace(
+        	    		new GcsFilename("appstats", statType+"/"+accountId+"/"+path), 
+        	    		GcsFileOptions.getDefaultInstance());
 		outputChannel.write(ByteBuffer.wrap(payload));
 		outputChannel.close();
 		
@@ -58,7 +63,7 @@ public class Files {
 			log.info("going to unzip file");
 			// queue unzip file
 	    	Queue queue = QueueFactory.getQueue("unzip");
-	        TaskHandle handler = queue.add(withUrl("/api/files/"+statType+"/"+path)
+	        TaskHandle handler = queue.add(withUrl("/api/files/"+statType+"/"+accountId+"/"+path)
 	        		.method(Method.PUT));
 	        log.info("ETA "+ new Date(handler.getEtaMillis()));
 	        log.info("Name "+handler.getName());
@@ -69,20 +74,24 @@ public class Files {
 	}
 	
 	@PUT
-	@Path("/{statType}/{path}")
+	@Path("/{statType}/{accountId}/{path}")
 	public void unzipFile(@PathParam("statType") String statType,
+			@PathParam("accountId") String accountId,
 			@PathParam("path") String path) throws IOException {
-		log.info("unzip this file "+statType+"/"+path);
+		log.info("unzip "+statType+" type");
+		log.info("from "+accountId+" id");
+		log.info("into "+path+" path");
 		
 		GcsService gcsService =
 			    GcsServiceFactory.createGcsService(RetryParams.getDefaultInstance());
-		GcsInputChannel readChannel = gcsService.openReadChannel(new GcsFilename("appstats", statType+"/"+path), 0);
+		GcsInputChannel readChannel = gcsService.openReadChannel(
+				new GcsFilename("appstats", statType+"/"+accountId+"/"+path), 0);
 
 		InputStream gzippedResponse = Channels.newInputStream(readChannel);
 	    InputStream ungzippedResponse = new GZIPInputStream(gzippedResponse);
 	    
 	    GcsOutputChannel outputChannel =
-        	    gcsService.createOrReplace(new GcsFilename("appstats", statType+"/"+path.replace(".gz", "")), 
+        	    gcsService.createOrReplace(new GcsFilename("appstats", statType+"/"+accountId+"/"+path.replace(".gz", "")), 
         	    		new GcsFileOptions.Builder().mimeType("text/tab-separated-values").build());
 	    
 	    IOUtils.copy(ungzippedResponse, Channels.newOutputStream(outputChannel));
@@ -92,7 +101,7 @@ public class Files {
 	    
 	    // queue delete file
     	Queue queue = QueueFactory.getQueue("delete");
-        TaskHandle handler = queue.add(withUrl("/api/files/"+statType+"/"+path)
+        TaskHandle handler = queue.add(withUrl("/api/files/"+statType+"/"+accountId+"/"+path)
         		.method(Method.DELETE));
         log.info("ETA "+ new Date(handler.getEtaMillis()));
         log.info("Name "+handler.getName());
@@ -102,13 +111,16 @@ public class Files {
 	}
 	
 	@DELETE
-	@Path("/{statType}/{path}")
+	@Path("/{statType}/{accountId}/{path}")
 	public void deleteFile(@PathParam("statType") String statType,
+			@PathParam("accountId") String accountId,
 			@PathParam("path") String path) throws IOException {
-		log.info("remove this file "+statType+"/"+path);
+		log.info("remove "+statType+" type");
+		log.info("from "+accountId+" id");
+		log.info("into "+path+" path");
 		
 		GcsService gcsService =
 			    GcsServiceFactory.createGcsService(RetryParams.getDefaultInstance());
-		gcsService.delete(new GcsFilename("appstats", statType+"/"+path));
+		gcsService.delete(new GcsFilename("appstats", statType+"/"+accountId+"/"+path));
 	}
 }

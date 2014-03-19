@@ -1,4 +1,26 @@
-apple.username=<username>
-apple.password=<password>
-google.username=<username>
-google.password=<password>
+# 1st Apple account
+apple.id=<apple.id>
+apple.username=<apple.username>
+apple.password=<apple.password>
+
+# 2nd Apple account
+apple.id=<apple.id>
+apple.username=<apple.username>
+apple.password=<apple.password>
+
+# 3rd Apple account
+apple.id=<apple.id>
+apple.username=<apple.username>
+apple.password=<apple.password>
+
+# 1st Google account
+google.username=<google.username>
+google.password=<google.password>
+
+# 2nd Google account
+google.username=<google.username>
+google.password=<google.password>
+
+# 3rd Google account
+google.username=<google.username>
+google.password=<google.password>

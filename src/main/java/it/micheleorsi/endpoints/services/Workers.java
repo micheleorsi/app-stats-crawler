@@ -6,45 +6,24 @@ package it.micheleorsi.endpoints.services;
 import static com.google.appengine.api.taskqueue.TaskOptions.Builder.withUrl;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.nio.ByteBuffer;
-import java.nio.channels.Channels;
 import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.logging.Logger;
-import java.util.zip.GZIPInputStream;
 
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLSession;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.DefaultValue;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.io.IOUtils;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.appengine.api.taskqueue.Queue;
 import com.google.appengine.api.taskqueue.QueueFactory;
 import com.google.appengine.api.taskqueue.TaskHandle;
 import com.google.appengine.api.taskqueue.TaskOptions.Method;
-import com.google.appengine.tools.cloudstorage.GcsFileOptions;
-import com.google.appengine.tools.cloudstorage.GcsFilename;
-import com.google.appengine.tools.cloudstorage.GcsOutputChannel;
-import com.google.appengine.tools.cloudstorage.GcsService;
-import com.google.appengine.tools.cloudstorage.GcsServiceFactory;
-import com.google.appengine.tools.cloudstorage.RetryParams;
-
 /**
  * @author micheleorsi
  *
@@ -53,6 +32,8 @@ import com.google.appengine.tools.cloudstorage.RetryParams;
 public class Workers {
 	private static final String AUTOINGESTION_APPLE_URL = "https://reportingitc.apple.com/autoingestion.tft?";
 	Logger log = Logger.getLogger(Workers.class.getName());
+	
+	private static final String WARNING_MESSAGE = "There are no reports available to download for this selection";
 		
 	@POST
 	@Path("/fetchApple")
@@ -74,6 +55,8 @@ public class Workers {
         data = data + "&REPORTTYPE="   + reportType;
         data = data + "&REPORTDATE="   + reportDate;
         
+        log.info("ready to send data: "+data);
+        
         HttpURLConnection connection = null;
         URL url = new URL(AUTOINGESTION_APPLE_URL);
         connection = (HttpURLConnection)url.openConnection();
@@ -88,14 +71,18 @@ public class Workers {
 
         if (connection.getHeaderField("ERRORMSG") != null) {
         	String errorMessage = connection.getHeaderField("ERRORMSG");
-        	log.warning(errorMessage);
-        	throw new RuntimeException(errorMessage);
+        	if(errorMessage.equals(WARNING_MESSAGE)) {
+        		log.warning(errorMessage);
+        		throw new RuntimeException(errorMessage);
+        	} else {
+        		log.info(WARNING_MESSAGE);
+        	}
         } else if (connection.getHeaderField("filename") != null) {
         	byte[] bytes = IOUtils.toByteArray(connection.getInputStream());
         	
         	// queue store file
         	Queue queue = QueueFactory.getQueue("store");
-            TaskHandle handler = queue.add(withUrl("/api/files/apple/"+connection.getHeaderField("filename"))
+            TaskHandle handler = queue.add(withUrl("/api/files/apple/"+vndNumber+"/"+connection.getHeaderField("filename"))
             		.payload(bytes)
             		.method(Method.POST));
             log.info("ETA "+ new Date(handler.getEtaMillis()));
