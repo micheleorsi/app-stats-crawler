@@ -204,6 +204,7 @@
     
     <properties>
     	<appengine.app.name>micheletests</appengine.app.name>
+    	<!-- in order to deploy in the right way on Google App Engine -->
     	<appengine.app.version>release-${parsedVersion.majorVersion}${parsedVersion.minorVersion}${parsedVersion.incrementalVersion}</appengine.app.version>
         <appengine.module>default</appengine.module>
         <appengine.target.version>1.9.0</appengine.target.version>
