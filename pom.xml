@@ -23,14 +23,6 @@
 	<prerequisites>
         <maven>3.2</maven>
     </prerequisites>
-    
-    <pluginRepositories>
-        <pluginRepository>
-            <id>google-staging</id>
-            <name>Google Staging</name>
-            <url>https://oss.sonatype.org/content/repositories/comgoogleappengine-1004/</url>
-        </pluginRepository>
-    </pluginRepositories>
 
     <dependencies>
         <!-- Compile/runtime dependencies -->
