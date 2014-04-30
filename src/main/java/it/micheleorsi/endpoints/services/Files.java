@@ -4,6 +4,7 @@
 package it.micheleorsi.endpoints.services;
 
 import static com.google.appengine.api.taskqueue.TaskOptions.Builder.withUrl;
+import it.micheleorsi.utils.Configurator;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -63,7 +64,7 @@ public class Files {
 			log.info("going to unzip file");
 			// queue unzip file
 	    	Queue queue = QueueFactory.getQueue("unzip");
-	        TaskHandle handler = queue.add(withUrl("/api/files/"+statType+"/"+accountId+"/"+path)
+	        TaskHandle handler = queue.add(withUrl(Configurator.ROOT_PATH+"/files/"+statType+"/"+accountId+"/"+path)
 	        		.method(Method.PUT));
 	        log.info("ETA "+ new Date(handler.getEtaMillis()));
 	        log.info("Name "+handler.getName());
@@ -101,7 +102,7 @@ public class Files {
 	    
 	    // queue delete file
     	Queue queue = QueueFactory.getQueue("delete");
-        TaskHandle handler = queue.add(withUrl("/api/files/"+statType+"/"+accountId+"/"+path)
+        TaskHandle handler = queue.add(withUrl(Configurator.ROOT_PATH+"/files/"+statType+"/"+accountId+"/"+path)
         		.method(Method.DELETE));
         log.info("ETA "+ new Date(handler.getEtaMillis()));
         log.info("Name "+handler.getName());

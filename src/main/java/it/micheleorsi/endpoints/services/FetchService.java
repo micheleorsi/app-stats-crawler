@@ -112,7 +112,7 @@ public class FetchService {
 	private void addDownloadAppleFile(String reportDate) throws UnsupportedEncodingException {
 		Queue queue = QueueFactory.getQueue("fetch");
 		for (StoreAuth localAuth : this.appleAuths) {
-			TaskHandle handler = queue.add(withUrl("/api/workers/fetchApple")
+			TaskHandle handler = queue.add(withUrl(Configurator.ROOT_PATH+"/workers/fetchApple")
 					.param("username", localAuth.getUsername())
 					.param("password", localAuth.getPassword())
 					.param("vndNumber", localAuth.getId())

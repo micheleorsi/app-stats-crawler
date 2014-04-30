@@ -4,6 +4,7 @@
 package it.micheleorsi.endpoints.services;
 
 import static com.google.appengine.api.taskqueue.TaskOptions.Builder.withUrl;
+import it.micheleorsi.utils.Configurator;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -82,7 +83,7 @@ public class Workers {
         	
         	// queue store file
         	Queue queue = QueueFactory.getQueue("store");
-            TaskHandle handler = queue.add(withUrl("/api/files/apple/"+vndNumber+"/"+connection.getHeaderField("filename"))
+            TaskHandle handler = queue.add(withUrl(Configurator.ROOT_PATH+"/files/apple/"+vndNumber+"/"+connection.getHeaderField("filename"))
             		.payload(bytes)
             		.method(Method.POST));
             log.info("ETA "+ new Date(handler.getEtaMillis()));
