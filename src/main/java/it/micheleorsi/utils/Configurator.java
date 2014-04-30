@@ -32,7 +32,7 @@ public class Configurator {
 	private static final String GOOGLE_USERNAME = "google.username";
 	private static final String GOOGLE_PASSWORD = "google.password";
 	
-	public static final String ROOT_PATH = "/api";
+	public static final String ROOT_PATH = "/appstats";
 	
 	public Configurator(String fileName) throws ConfigurationException {
 		Configuration config = new PropertiesConfiguration(fileName);

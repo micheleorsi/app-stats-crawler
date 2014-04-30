@@ -23,11 +23,11 @@
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>Endpoints</servlet-name>
-		<url-pattern>/api/*</url-pattern>
+		<url-pattern>/appstats/*</url-pattern>
 	</servlet-mapping>
 	<security-constraint>
 		<web-resource-collection>
-			<url-pattern>/api/*</url-pattern>
+			<url-pattern>/appstats/*</url-pattern>
 		</web-resource-collection>
 		<auth-constraint>
 			<role-name>admin</role-name>
