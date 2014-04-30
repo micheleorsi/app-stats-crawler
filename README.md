@@ -35,7 +35,7 @@ Configuration
 Deployment
 ----------
 
-    mvn clean deploy
+    mvn clean appengine:update
     
 Testing
 -------

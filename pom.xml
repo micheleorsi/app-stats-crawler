@@ -203,10 +203,10 @@
     </build>
     
     <properties>
-    	<appengine.app.name>micheletests</appengine.app.name>
+    	<gae.application.project>micheletests</gae.application.project>
     	<!-- in order to deploy in the right way on Google App Engine -->
-    	<appengine.app.version>release-${parsedVersion.majorVersion}${parsedVersion.minorVersion}${parsedVersion.incrementalVersion}</appengine.app.version>
-        <appengine.module>default</appengine.module>
+    	<gae.application.version>release-${parsedVersion.majorVersion}${parsedVersion.minorVersion}${parsedVersion.incrementalVersion}</gae.application.version>
+        <gae.application.module>default</gae.application.module>
         <appengine.target.version>1.9.0</appengine.target.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <google-api-client.version>1.18.0-rc</google-api-client.version>
