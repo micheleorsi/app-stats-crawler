@@ -75,7 +75,7 @@
 		<dependency>
 	      <groupId>com.google.api-client</groupId>
 	      <artifactId>google-api-client-appengine</artifactId>
-	      <version>${google-api-client.version}</version>
+	      <version>1.18.0-rc</version>
 	    </dependency>
 	    <!-- Google Cloud Storage -->
 	    <dependency>
@@ -189,7 +189,6 @@
         <gae.application.module>default</gae.application.module>
         <appengine.target.version>1.9.5</appengine.target.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <google-api-client.version>1.18.0-rc</google-api-client.version>
     </properties>
 
 </project>
