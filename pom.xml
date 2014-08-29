@@ -75,18 +75,18 @@
 		<dependency>
 	      <groupId>com.google.api-client</groupId>
 	      <artifactId>google-api-client-appengine</artifactId>
-	      <version>1.18.0-rc</version>
+	      <version>1.19.0</version>
 	    </dependency>
 	    <!-- Google Cloud Storage -->
 	    <dependency>
 	      <groupId>com.google.apis</groupId>
 	      <artifactId>google-api-services-storage</artifactId>
-	      <version>v1-rev2-1.18.0-rc</version>
+	      <version>v1-rev9-1.19.0</version>
 	    </dependency>
 	    <dependency>
 		    <groupId>com.google.appengine.tools</groupId>
 		    <artifactId>appengine-gcs-client</artifactId>
-		    <version>0.3.12</version>
+		    <version>0.4.1</version>
 		</dependency>
 		
 		<!-- Stream handler -->
@@ -107,7 +107,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.11</version>
+            <version>4.12-beta-1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -187,7 +187,7 @@
     	<!-- in order to deploy in the right way on Google App Engine -->
     	<gae.application.version>release-${parsedVersion.majorVersion}${parsedVersion.minorVersion}${parsedVersion.incrementalVersion}</gae.application.version>
         <gae.application.module>default</gae.application.module>
-        <appengine.target.version>1.9.5</appengine.target.version>
+        <appengine.target.version>1.9.9</appengine.target.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
